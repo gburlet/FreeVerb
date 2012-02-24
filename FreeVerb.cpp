@@ -95,7 +95,7 @@ void FreeVerb::setWet(StkFloat wet) {
     wet_ = wet * scaleWet;
 
     wet1_ = wet_ * ((width_ / 2.0) + 0.5);
-	wet2_ = wet_ * ((1.0 - width_) / 2.0);
+    wet2_ = wet_ * ((1.0 - width_) / 2.0);
 }
 
 StkFloat FreeVerb::getWet() {
@@ -115,7 +115,7 @@ void FreeVerb::setWidth(StkFloat width) {
 
     // width affects wet1 and wet2 parameters
     wet1_ = wet_ * ((width_ / 2.0) + 0.5);
-	wet2_ = wet_ * ((1.0 - width_) / 2.0);
+    wet2_ = wet_ * ((1.0 - width_) / 2.0);
 }
 
 StkFloat FreeVerb::getWidth() {

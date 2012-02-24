@@ -24,7 +24,7 @@ class FreeVerb : public Effect
     static const int stereoSpread = 23;
     static const StkFloat fixedGain = 0.015;
     static const StkFloat scaleWet = 3;
-    static const StkFloat scaleDry	= 2;
+    static const StkFloat scaleDry = 2;
     static const StkFloat scaleDamp = 0.4;
     static const StkFloat scaleRoom = 0.28;
     static const StkFloat offsetRoom = 0.7;
@@ -38,27 +38,27 @@ class FreeVerb : public Effect
 
         void setRoomSize(StkFloat value);
 
-		StkFloat getRoomSize();
+        StkFloat getRoomSize();
 
-		void setDamp(StkFloat value);
+        void setDamp(StkFloat value);
 
-		StkFloat getDamp();
+        StkFloat getDamp();
 
-		void setWet(StkFloat value);
+        void setWet(StkFloat value);
 
-		StkFloat getWet();
+        StkFloat getWet();
 
-		void setDry(StkFloat value);
+        void setDry(StkFloat value);
 
-		StkFloat getDry();
+        StkFloat getDry();
 
-		void setWidth(StkFloat value);
+        void setWidth(StkFloat value);
 
-		StkFloat getWidth();
+        StkFloat getWidth();
 
-		void setMode(bool isFrozen);
+        void setMode(bool isFrozen);
 
-		StkFloat getMode();
+        StkFloat getMode();
 
         void clear();
 
