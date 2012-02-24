@@ -19,12 +19,46 @@ namespace stk {
 
 class FreeVerb : public Effect
 {
+    static const int numCombs = 8;
+    static const int numAllPasses = 4;
+    static const int stereoSpread = 23;
+    static const StkFloat fixedGain = 0.015;
+    static const StkFloat scaleWet = 3;
+    static const StkFloat scaleDry	= 2;
+    static const StkFloat scaleDamp = 0.4;
+    static const StkFloat scaleRoom = 0.28;
+    static const StkFloat offsetRoom = 0.7;
+    
     public:
         //! Constructor
         FreeVerb();
 
         //! Destructor
         ~FreeVerb();
+
+        void setRoomSize(StkFloat value);
+
+		StkFloat getRoomSize();
+
+		void setDamp(StkFloat value);
+
+		StkFloat getDamp();
+
+		void setWet(StkFloat value);
+
+		StkFloat getWet();
+
+		void setDry(StkFloat value);
+
+		StkFloat getDry();
+
+		void setWidth(StkFloat value);
+
+		StkFloat getWidth();
+
+		void setMode(bool isFrozen);
+
+		StkFloat getMode();
 
         void clear();
 
@@ -37,19 +71,24 @@ class FreeVerb : public Effect
         StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames, unsigned int iChannel = 0, unsigned int oChannel =0);
 
     protected:
-        int numComb_, numAllPass_;
-        StkFloat feedback_; // feedback coefficient
         StkFloat g_;        // allpass coefficient
+        StkFloat gain_;
+        StkFloat roomSize_;
+        StkFloat damp_;
+        StkFloat wet_, wet1_, wet2_;
+        StkFloat dry_;
+        StkFloat width_;
+        bool frozenMode_;
 
         // LBFC: Lowpass Feedback Comb Filters
-        Delay combDelayL_[8];
-        Delay combDelayR_[8];
-        OnePole combFilterL_[8];
-        OnePole combFilterR_[8];
+        Delay combDelayL_[numCombs];
+        Delay combDelayR_[numCombs];
+        OnePole combFilterL_[numCombs];
+        OnePole combFilterR_[numCombs];
         
         // AP: Allpass Filters
-        Delay allPassDelayL_[4];
-        Delay allPassDelayR_[4];
+        Delay allPassDelayL_[numAllPasses];
+        Delay allPassDelayR_[numAllPasses];
 };
 
 }
