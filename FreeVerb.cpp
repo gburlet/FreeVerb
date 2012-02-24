@@ -13,6 +13,10 @@
 
 using namespace stk;
 
+// set static delay line lengths
+int FreeVerb::cDelayLen[] = {1617, 1557, 1491, 1422, 1356, 1277, 1188, 1116};
+int FreeVerb::aDelayLen[] = {556, 441, 341, 225};
+
 FreeVerb::FreeVerb() {
     // resize lastFrame_ for stereo output
     lastFrame_.resize(1, 2, 0.0);
@@ -21,16 +25,12 @@ FreeVerb::FreeVerb() {
     setWet(1.0 / scaleWet);
     setRoomSize(0.5);       // feedback attenuation in LBFC
     setDry(0.0);
-    setDamp(0.5);           // pole of lowpass filters in he LBFC
+    setDamp(0.5);           // pole of lowpass filters in the LBFC
     setWidth(1.0);
     setMode(false);
 
     gain_ = fixedGain;      // input gain before sending to filters
     g_ = 0.5;               // allpass coefficient, immutable in FreeVerb
-
-    // delay line lengths for 44100Hz sampling rate
-    int cDelayLen[numCombs] = {1617, 1557, 1491, 1422, 1356, 1277, 1188, 1116};
-    int aDelayLen[numAllPasses] = {556, 441, 341, 225};
 
     // scale delay line lengths according to the current sampling rate
     double fsScale = Stk::sampleRate() / 44100.0;

@@ -18,17 +18,7 @@ namespace stk {
 /***************************************************/
 
 class FreeVerb : public Effect
-{
-    static const int numCombs = 8;
-    static const int numAllPasses = 4;
-    static const int stereoSpread = 23;
-    static const StkFloat fixedGain = 0.015;
-    static const StkFloat scaleWet = 3;
-    static const StkFloat scaleDry = 2;
-    static const StkFloat scaleDamp = 0.4;
-    static const StkFloat scaleRoom = 0.28;
-    static const StkFloat offsetRoom = 0.7;
-    
+{   
     public:
         //! Constructor
         FreeVerb();
@@ -69,6 +59,20 @@ class FreeVerb : public Effect
         StkFrames& tick(StkFrames& frames, unsigned int channel = 0);
 
         StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames, unsigned int iChannel = 0, unsigned int oChannel =0);
+    
+        static const int numCombs = 8;
+        static const int numAllPasses = 4;
+        static const int stereoSpread = 23;
+        static const StkFloat fixedGain = 0.015;
+        static const StkFloat scaleWet = 3;
+        static const StkFloat scaleDry = 2;
+        static const StkFloat scaleDamp = 0.4;
+        static const StkFloat scaleRoom = 0.28;
+        static const StkFloat offsetRoom = 0.7;
+
+        // delay line lengths for 44100Hz sampling rate
+        static int cDelayLen[numCombs];
+        static int aDelayLen[numAllPasses];
 
     protected:
         StkFloat g_;        // allpass coefficient
