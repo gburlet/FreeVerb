@@ -33,16 +33,16 @@ FreeVerb::FreeVerb() {
     int aDelayLen[numAllPasses] = {556, 441, 341, 225};
 
     // scale delay line lengths according to the current sampling rate
-    double scaler = Stk::sampleRate() / 44100.0;
-    if (scaler != 1.0) {
+    double fsScale = Stk::sampleRate() / 44100.0;
+    if (fsScale != 1.0) {
         // scale comb filter delay lines
         for (int i = 0; i < numCombs; i++) {
-            cDelayLen[i] = (int) floor(scaler * cDelayLen[i]);
+            cDelayLen[i] = (int) floor(fsScale * cDelayLen[i]);
         }
 
         // scale allpass filter delay lines
         for (int i = 0; i < numAllPasses; i++) {
-            aDelayLen[i] = (int) floor(scaler * aDelayLen[i]);
+            aDelayLen[i] = (int) floor(fsScale * aDelayLen[i]);
         }
     }
 
@@ -50,15 +50,16 @@ FreeVerb::FreeVerb() {
     for (int i = 0; i < numCombs; i++) {
         combDelayL_[i].setMaximumDelay(cDelayLen[i]);
         combDelayL_[i].setDelay(cDelayLen[i]);
-
-        // set low pass filter for delay output
-        combFilterL_[i].setCoefficients(1.0 - damp_, -damp_);
+        combDelayR_[i].setMaximumDelay(cDelayLen[i] + stereoSpread);
+        combDelayR_[i].setMaximumDelay(cDelayLen[i] + stereoSpread);
     }
 
     // initialize delay lines for the allpass filters
     for (int i = 0; i < numAllPasses; i++) {
         allPassDelayL_[i].setMaximumDelay(aDelayLen[i]);
         allPassDelayL_[i].setDelay(aDelayLen[i]);
+        allPassDelayR_[i].setMaximumDelay(aDelayLen[i] + stereoSpread);
+        allPassDelayR_[i].setDelay(aDelayLen[i] + stereoSpread);
     }
 }
 
@@ -77,6 +78,12 @@ StkFloat FreeVerb::getRoomSize() {
 void FreeVerb::setDamp(StkFloat damping) {
     if (!frozenMode_) {
         damp_ = damping * scaleDamp;
+
+        for (int i = 0; i < numCombs; i++) {
+            // set low pass filter for delay output
+            combFilterL_[i].setCoefficients(1.0 - damp_, -damp_);
+            combFilterR_[i].setCoefficients(1.0 - damp_, -damp_);
+        }
     }
 }
 
@@ -172,28 +179,46 @@ StkFloat FreeVerb::lastOut(unsigned int channel) {
 // TODO: make it take two input channels
 StkFloat FreeVerb::tick(StkFloat input, unsigned int channel) {
     // gain
-    input *= gain_;
+    StkFloat fInput = input * gain_;
+
+    StkFloat outL = 0.0;
+    StkFloat outR = 0.0;
 
     // 8 LBCF filters in parallel
-    StkFloat allPassInputL = 0.0;
     for (int i = 0; i < numCombs; i++) {
-        StkFloat yn = input + (roomSize_ * combFilterL_[i].tick(combDelayL_[i].lastOut()));
+        // process L channel
+        StkFloat yn = fInput + (roomSize_ * combFilterL_[i].tick(combDelayL_[i].lastOut()));
         combDelayL_[i].tick(yn);
-        allPassInputL += yn;
+        outL += yn;
+
+        // process R channel
+        yn = fInput + (roomSize_ * combFilterR_[i].tick(combDelayR_[i].lastOut()));
+        combDelayR_[i].tick(yn);
+        outR += yn;
     }
 
     // 4 allpass filters in series
     for (int i = 0; i < numAllPasses; i++) {
+        // process L channel
         StkFloat vn_m = allPassDelayL_[i].lastOut();
-        StkFloat vn = allPassInputL + (g_ * vn_m);
+        StkFloat vn = outL + (g_ * vn_m);
         allPassDelayL_[i].tick(vn);
 
         // calculate output
-        allPassInputL = -vn + ((1.0 + g_) * vn_m);
+        outL = -vn + ((1.0 + g_) * vn_m);
+
+        // process R channel
+        vn_m = allPassDelayR_[i].lastOut();
+        vn = outR + (g_ * vn_m);
+        allPassDelayR_[i].tick(vn);
+
+        // calculate output
+        outR = -vn + ((1.0 + g_) * vn_m);
     }
 
-    lastFrame_[0] = allPassInputL;
-    lastFrame_[1] = allPassInputL;
+    // mix output
+    lastFrame_[0] = outL*wet1_ + outR*wet2_ + input*dry_;
+    lastFrame_[1] = outR*wet1_ + outL*wet2_ + input*dry_;
 
     return lastFrame_[channel];
 }
