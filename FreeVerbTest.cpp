@@ -46,6 +46,10 @@ int main(int argc, char *argv[]) {
     }
 
     FreeVerb fv = FreeVerb();
+    fv.setDamp(0.5);
+    fv.setWidth(0.5);
+    fv.setRoomSize(1.0);
+    fv.setMix(0.5);
 
     /* single sample computation */
     for (unsigned int i = 0; i < input.getSize(); i++) {

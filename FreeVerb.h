@@ -26,6 +26,8 @@ class FreeVerb : public Effect
         //! Destructor
         ~FreeVerb();
 
+        void setMix(StkFloat value);
+
         void setRoomSize(StkFloat value);
 
         StkFloat getRoomSize();
@@ -34,14 +36,6 @@ class FreeVerb : public Effect
 
         StkFloat getDamp();
 
-        void setWet(StkFloat value);
-
-        StkFloat getWet();
-
-        void setDry(StkFloat value);
-
-        StkFloat getDry();
-
         void setWidth(StkFloat value);
 
         StkFloat getWidth();
@@ -49,6 +43,8 @@ class FreeVerb : public Effect
         void setMode(bool isFrozen);
 
         StkFloat getMode();
+
+        void update();
 
         void clear();
 
@@ -77,10 +73,9 @@ class FreeVerb : public Effect
     protected:
         StkFloat g_;        // allpass coefficient
         StkFloat gain_;
-        StkFloat roomSize_;
-        StkFloat damp_;
-        StkFloat wet_, wet1_, wet2_;
-        StkFloat dry_;
+        StkFloat roomSizeMem_, roomSize_;
+        StkFloat dampMem_, damp_;
+        StkFloat wet1_, wet2_;
         StkFloat width_;
         bool frozenMode_;
 
