@@ -50,11 +50,11 @@ class FreeVerb : public Effect
 
         StkFloat lastOut(unsigned int channel = 0);
 
-        StkFloat tick(StkFloat input, unsigned int channel = 0);
+        StkFloat tick(StkFloat inputL, StkFloat inputR = 0.0, unsigned int channel = 0);
 
-        StkFrames& tick(StkFrames& frames, unsigned int channel = 0);
+        StkFrames& tick(StkFrames& frames);
 
-        StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames, unsigned int iChannel = 0, unsigned int oChannel =0);
+        StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames);
     
         static const int numCombs = 8;
         static const int numAllPasses = 4;

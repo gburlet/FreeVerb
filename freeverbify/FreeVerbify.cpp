@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
     // Open an output file for writing
     try {
-        output.openFile(argv[2], 1, FileWrite::FILE_AIF, Stk::STK_SINT16);
+        output.openFile(argv[2], input.channelsOut(), FileWrite::FILE_AIF, Stk::STK_SINT16);
     }
     catch (StkError &) {
         input.closeFile();
@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
     fv.setMix(0.5);
 
     /* single sample computation */
+    /*
     for (unsigned int i = 0; i < input.getSize(); i++) {
         try {
             output.tick(fv.tick(input.tick()));
@@ -59,6 +60,25 @@ int main(int argc, char *argv[]) {
         catch (StkError &) {
             break; // file pointer cleanup
         }
+    }*/
+    
+    /* use STK frames with replacement
+    StkFrames frames(input.getSize(), input.channelsOut());
+    try {
+        output.tick(fv.tick(input.tick(frames)));
+    }
+    catch (StkError &) {
+        // file pointer cleanup
+    }*/
+
+    // using STK frames with seperate in and outs
+    StkFrames iFrames(input.getSize(), input.channelsOut());
+    StkFrames oFrames(input.getSize(), input.channelsOut());
+    try {
+        output.tick(fv.tick(input.tick(iFrames), oFrames));
+    }
+    catch (StkError &) {
+        // file pointer cleanup
     }
 
     input.closeFile();

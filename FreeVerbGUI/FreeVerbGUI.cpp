@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
     }
 
     cleanup:
-	    std::cout << "\neffects finished ... goodbye.\n\n";
+	    std::cout << std::endl << "effects finished ... goodbye." << std::endl;
 
     return 0;
 }

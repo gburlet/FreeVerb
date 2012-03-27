@@ -157,17 +157,20 @@ StkFloat FreeVerb::lastOut(unsigned int channel) {
     return lastFrame_[channel];
 }
 
-// TODO: make a tick with two input channels
-StkFloat FreeVerb::tick(StkFloat input, unsigned int channel) {
+StkFloat FreeVerb::tick(StkFloat inputL, StkFloat inputR, unsigned int channel) {
 #if defined(_STK_DEBUG_)
     if (channel > 1) {
         oStream_ << "FreeVerb::tick(): channel argument must be less than 2!";
-        handleError( StkError::FUNCTION_ARGUMENT );
+        handleError(StkError::FUNCTION_ARGUMENT);
     }
 #endif
 
+    if (!inputR) {
+        inputR = inputL;
+    }
+
     // gain
-    StkFloat fInput = 2.0 * input * gain_;
+    StkFloat fInput = (inputL + inputR) * gain_;
 
     StkFloat outL = 0.0;
     StkFloat outR = 0.0;
@@ -205,16 +208,64 @@ StkFloat FreeVerb::tick(StkFloat input, unsigned int channel) {
     }
 
     // mix output
-    lastFrame_[0] = outL*wet1_ + outR*wet2_ + input*scaleDry*(1.0-effectMix_);
-    lastFrame_[1] = outR*wet1_ + outL*wet2_ + input*scaleDry*(1.0-effectMix_);
+    lastFrame_[0] = outL*wet1_ + outR*wet2_ + inputL*scaleDry*(1.0-effectMix_);
+    lastFrame_[1] = outR*wet1_ + outL*wet2_ + inputR*scaleDry*(1.0-effectMix_);
 
     return lastFrame_[channel];
 }
 
-StkFrames& FreeVerb::tick(StkFrames& frames, unsigned int channel) {
+StkFrames& FreeVerb::tick(StkFrames& frames) {
+    unsigned int numChannels = frames.channels();
+
+#if defined(_STK_DEBUG_)
+    if (numChannels > 2) {
+        oStream_ << "FreeVerb::tick(): must be <= 2 channels!";
+        handleError(StkError::FUNCTION_ARGUMENT);
+    }
+#endif
+
+    StkFloat *samples = &frames[0];
+    for (unsigned int i = 0; i < frames.frames(); i++, samples += numChannels) {
+        // if frames is stereo
+        if (numChannels == 2) {
+            *samples = tick(*samples, *(samples+1));
+            *(samples+1) = lastFrame_[1];
+        }
+        else {
+            *samples = tick(*samples);
+        }
+    }
+
     return frames;
 }
 
-StkFrames& FreeVerb::tick(StkFrames& iFrames, StkFrames &oFrames, unsigned int iChannel, unsigned int oChannel) {
+StkFrames& FreeVerb::tick(StkFrames& iFrames, StkFrames &oFrames) {
+    unsigned int iNumChannels = iFrames.channels();
+    unsigned int oNumChannels = oFrames.channels();
+
+#if defined(_STK_DEBUG_)
+    if (iNumChannels > 2 || oNumChannels > 2) {
+        oStream_ << "FreeVerb::tick(): must be <= 2 channels!";
+        handleError(StkError::FUNCTION_ARGUMENT);
+    }
+#endif
+
+    StkFloat *iSamples = &iFrames[0];
+    StkFloat *oSamples = &oFrames[0];
+    for (unsigned int i = 0; i < iFrames.frames(); i++, iSamples += iNumChannels, oSamples += oNumChannels) {
+        // if iFrames is stereo
+        if (iNumChannels == 2) {
+            *oSamples = tick(*iSamples, *(iSamples+1));
+        }
+        else {
+            *oSamples = tick(*iSamples);
+        }
+
+        // if oFrames is stereo
+        if(oNumChannels == 2) {
+            *(oSamples+1) = lastFrame_[1];
+        }
+    }
+
     return oFrames;
 }
