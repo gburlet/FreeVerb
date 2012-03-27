@@ -10,7 +10,7 @@
 
 #include "FileWvIn.h"
 #include "FileWvOut.h"
-#include "FreeVerb.h"
+#include "../FreeVerb.h"
 
 using namespace stk;
 
