@@ -27,6 +27,11 @@ freeverb.o: $(FREEVERB_PATH)/FreeVerb.cpp $(FREEVERB_PATH)/FreeVerb.h
 freeverbify.o: FreeVerbify.cpp $(FREEVERB_PATH)/FreeVerb.h
 	g++ -c $(CFLAGS) $(LINKS) $< -o $(OBJECT_PATH)/$@
 
+$(OBJECTS): | $(OBJECT_PATH)
+
+$(OBJECT_PATH):
+	mkdir $(OBJECT_PATH)
+
 clean:
-	rm -rf $(OBJECT_PATH)/*.o freeverbify
+	rm -rf $(OBJECT_PATH) freeverbify
 
