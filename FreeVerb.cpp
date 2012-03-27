@@ -22,9 +22,9 @@ FreeVerb::FreeVerb() {
     lastFrame_.resize(1, 2, 0.0);
 
     // initialize parameters
-    this->setMix(0.75);            // set initially to 1/2 wet 1/2 dry signal (different than original freeverb) 
-    this->setRoomSize(0.5);       // feedback attenuation in LBFC
-    this->setDamp(0.5);           // pole of lowpass filters in the LBFC
+    this->setMix(0.75);            // set initially to 3/4 wet 1/4 dry signal (different than original freeverb) 
+    this->setRoomSize(0.75);       // feedback attenuation in LBFC
+    this->setDamp(0.25);           // pole of lowpass filters in the LBFC
     this->setWidth(1.0);
     this->setMode(false);
 

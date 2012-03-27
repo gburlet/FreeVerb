@@ -1,6 +1,6 @@
 # MUMT 618 Final Project
 # Stk FreeVerb implementation
-# Gregory Burlet, 20120
+# Gregory Burlet, 2012
 #
 # make file for a test program which applies FreeVerb to an audio file
 
