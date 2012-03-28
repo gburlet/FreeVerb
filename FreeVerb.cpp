@@ -15,7 +15,7 @@ using namespace stk;
 
 // set static delay line lengths
 int FreeVerb::cDelayLen[] = {1617, 1557, 1491, 1422, 1356, 1277, 1188, 1116};
-int FreeVerb::aDelayLen[] = {556, 441, 341, 225};
+int FreeVerb::aDelayLen[] = {225, 556, 441, 341};
 
 FreeVerb::FreeVerb() {
     // resize lastFrame_ for stereo output
