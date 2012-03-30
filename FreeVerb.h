@@ -26,40 +26,73 @@ namespace stk {
 class FreeVerb : public Effect
 {   
     public:
-        //! Constructor
+        //! FreeVerb Constructor
+        /*!
+          Initializes the effect with default parameters. Note that these defaults
+          are slightly different than the defaults provided in the original 
+          implementation in FreeVerb.
+          Defaults:
+            Effect Mix: 0.75
+            Room Size: 0.75
+            Damping: 0.25
+            Width: 1.0
+            Mode: freeze mode off
+        */
         FreeVerb();
 
         //! Destructor
         ~FreeVerb();
 
+        //! set the effect mix [0,1]
+        /*!
+         value = 1.0 corresponds to 100% wet mix, 0.0 corresponds to 100% dry mix
+        */
         void setMix(StkFloat value);
 
+        //! set the room size parameter [0,1]
         void setRoomSize(StkFloat value);
 
+        //! get the room size parameter
         StkFloat getRoomSize();
 
+        //! set the damping parameter [0,1]
         void setDamp(StkFloat value);
 
+        //! get the damping parameter
         StkFloat getDamp();
 
+        //! set the width parameter [0,1]
         void setWidth(StkFloat value);
 
+        //! get the width parameter
         StkFloat getWidth();
 
+        //! set the mode, frozen or not
         void setMode(bool isFrozen);
 
+        //! get the current freeze mode
         StkFloat getMode();
 
+        //! update parameters
+        /*!
+          Since some changes in parameters are interdependent,
+          this keeps everything in sync.
+        */
         void update();
 
+        //! clears delay lines, etc.
         void clear();
 
+        //! returns the last calculated value of the effect for the given channel
         StkFloat lastOut(unsigned int channel = 0);
 
+        //! Provide one sample of mono or stereo import and return the given calculated channel
         StkFloat tick(StkFloat inputL, StkFloat inputR = 0.0, unsigned int channel = 0);
 
+        //! Provide a frame of input (mono or stereo) and calculate stereo reverbed output with replacement
         StkFrames& tick(StkFrames& frames);
 
+        //! Provide a frame of input (mono or stereo) and calculate stereo reverbed output without replacement
         StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames);
     
         static const int numCombs = 8;
