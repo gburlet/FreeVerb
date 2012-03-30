@@ -8,6 +8,7 @@
 #include "RtAudio.h"
 
 #include <signal.h>
+#include <math.h>
 #include <cstring>
 #include <iostream>
 #include <algorithm>
@@ -98,7 +99,8 @@ void processMessage(TickData* data) {
                     break;
                 case 25:
                     // parameter freeze mode change
-                    if (value > 0.5) {
+                    value = floor(value + 0.5);
+                    if (value) {
                         data->freerev.setMode(true);
                     }
                     else {

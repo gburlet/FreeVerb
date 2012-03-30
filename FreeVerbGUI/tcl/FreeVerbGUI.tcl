@@ -73,15 +73,16 @@ scale .left.width -from 0 -to 127 -length 400 \
 -tickinterval 32 -showvalue true -bg grey66 \
 -variable width
 
-scale .left.freezemode -from 0 -to 127 -length 400 \
+#scale .left.freezemode -from 0 -to 127 -length 400 \
 -command {printWhatz "ControlChange    0.0 1 " 25} \
 -orient horizontal -label "Freeze Mode" \
 -tickinterval 32 -showvalue true -bg grey66 \
 -variable freezemode
 
-#checkbutton .left.freezemode \
--command {printWhatz "ControlChange    0.0 1 " 27} \
--showvalue true -bg grey66 -label "Disabled" \
+checkbutton .left.freezemode \
+-command freeze  \
+-bg grey66 -text "Freeze Mode" \
+-onvalue true -offvalue false \
 -variable freezemode
 
 pack .left.effectsmix -padx 10 -pady 3
@@ -120,6 +121,17 @@ proc printWhatz {tag value1 value2 } {
     flush $outID
 }
 
+proc freeze {} {
+    global freezemode
+    global outID
+
+    if {$freezemode==true} {  
+        puts $outID "ControlChange    0.0 1  25 127.0"
+    } else {
+        puts $outID "ControlChange    0.0 1  25 0.0"
+    }
+    flush $outID
+}
 # Bind an X windows "close" event with the Exit routine
 bind . <Destroy> +myExit
 

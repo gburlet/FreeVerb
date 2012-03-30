@@ -7,15 +7,21 @@
 
 namespace stk {
 
-/***************************************************/
+/**************************************************************************/
 /*! \class FreeVerb
-    \brief Jezar at Dreampoint's FreeVerb implemented in STK
+    \brief Jezar at Dreampoint's FreeVerb, implemented in STK
 
-    TODO: class description here
+    Freeverb is a free and open-source Schroeder 
+    reverberator originally implemented in C++, and now
+    implemented in Stk. The parameters of the reverberation model are
+    exceptionally well tuned. FreeVerb uses 8 lowpass-feedback-comb-filters
+    in parallel, followed by 4 Schroeder allpass filters in series.
+    The input signal can be either mono or stereo, and the output signal
+    is stereo.
 
-    by Gregory Burlet, 2012.
+    ported by Gregory Burlet, 2012.
 */
-/***************************************************/
+/***************************************************************************/
 
 class FreeVerb : public Effect
 {   
