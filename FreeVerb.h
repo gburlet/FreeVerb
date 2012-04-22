@@ -94,6 +94,15 @@ class FreeVerb : public Effect
 
         //! Provide a frame of input (mono or stereo) and calculate stereo reverbed output without replacement
         StkFrames& tick(StkFrames& iFrames, StkFrames &oFrames);
+
+        // to clamp very small floats to zero
+        // in original FreeVerb implementation, but flawed.
+        // fixed version taken from:
+        // http://music.columbia.edu/pipermail/linux-audio-user/2004-July/013489.html 
+        static inline StkFloat undenormalize(volatile StkFloat s) { 
+            s += 9.8607615E-32f; 
+            return s - 9.8607615E-32f; 
+        }
     
         static const int numCombs = 8;
         static const int numAllPasses = 4;
@@ -115,6 +124,7 @@ class FreeVerb : public Effect
         StkFloat roomSizeMem_, roomSize_;
         StkFloat dampMem_, damp_;
         StkFloat wet1_, wet2_;
+        StkFloat dry_;
         StkFloat width_;
         bool frozenMode_;
 

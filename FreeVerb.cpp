@@ -16,6 +16,7 @@
 
 #include "FreeVerb.h"
 #include <math.h>
+#include <iostream>
 
 using namespace stk;
 
@@ -113,8 +114,15 @@ StkFloat FreeVerb::getMode() {
 
 void FreeVerb::update() {
     StkFloat wet = scaleWet * effectMix_;
+    dry_ = scaleDry * (1.0-effectMix_);
+
+    // take the L1 norm
+    // output gain will sum to one while still preserving ratio of scalings in original FreeVerb
+    wet /= (wet + dry_);
+    dry_ /= (wet + dry_);
+
     wet1_ = wet * (width_/2.0 + 0.5);
-    wet2_ = wet * (1.0 - width_)/2;
+    wet2_ = wet * (1.0 - width_)/2.0;
 
     if (frozenMode_) {
         // put into freeze mode
@@ -184,12 +192,12 @@ StkFloat FreeVerb::tick(StkFloat inputL, StkFloat inputR, unsigned int channel) 
     // 8 LBCF filters in parallel
     for (int i = 0; i < numCombs; i++) {
         // process L channel
-        StkFloat yn = fInput + (roomSize_ * combFilterL_[i].tick(combDelayL_[i].nextOut()));
+        StkFloat yn = fInput + (roomSize_ * FreeVerb::undenormalize(combFilterL_[i].tick(FreeVerb::undenormalize(combDelayL_[i].nextOut()))));
         combDelayL_[i].tick(yn);
         outL += yn;
 
         // process R channel
-        yn = fInput + (roomSize_ * combFilterR_[i].tick(combDelayR_[i].nextOut()));
+        yn = fInput + (roomSize_ * FreeVerb::undenormalize(combFilterR_[i].tick(FreeVerb::undenormalize(combDelayR_[i].nextOut()))));
         combDelayR_[i].tick(yn);
         outR += yn;
     }
@@ -197,7 +205,7 @@ StkFloat FreeVerb::tick(StkFloat inputL, StkFloat inputR, unsigned int channel) 
     // 4 allpass filters in series
     for (int i = 0; i < numAllPasses; i++) {
         // process L channel
-        StkFloat vn_m = allPassDelayL_[i].nextOut();
+        StkFloat vn_m = FreeVerb::undenormalize(allPassDelayL_[i].nextOut());
         StkFloat vn = outL + (g_ * vn_m);
         allPassDelayL_[i].tick(vn);
         
@@ -205,7 +213,7 @@ StkFloat FreeVerb::tick(StkFloat inputL, StkFloat inputR, unsigned int channel) 
         outL = -vn + (1.0 + g_)*vn_m;
 
         // process R channel
-        vn_m = allPassDelayR_[i].nextOut();
+        vn_m = FreeVerb::undenormalize(allPassDelayR_[i].nextOut());
         vn = outR + (g_ * vn_m);
         allPassDelayR_[i].tick(vn);
 
@@ -214,8 +222,23 @@ StkFloat FreeVerb::tick(StkFloat inputL, StkFloat inputR, unsigned int channel) 
     }
 
     // mix output
-    lastFrame_[0] = outL*wet1_ + outR*wet2_ + inputL*scaleDry*(1.0-effectMix_);
-    lastFrame_[1] = outR*wet1_ + outL*wet2_ + inputR*scaleDry*(1.0-effectMix_);
+    lastFrame_[0] = outL*wet1_ + outR*wet2_ + inputL*dry_;
+    lastFrame_[1] = outR*wet1_ + outL*wet2_ + inputR*dry_;
+
+    // hard limiter
+    // there's not much else we can do at this point
+    if (lastFrame_[0] >= 1.0) {
+        lastFrame_[0] = 0.9999;
+    }
+    if (lastFrame_[0] <= -1.0) {
+        lastFrame_[0] = -0.9999;
+    }
+    if (lastFrame_[1] >= 1.0) {
+        lastFrame_[1] = 0.9999;
+    }
+    if (lastFrame_[1] <= -1.0) {
+        lastFrame_[1] = -0.9999;
+    }
 
     return lastFrame_[channel];
 }

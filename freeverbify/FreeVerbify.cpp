@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
     }
 
     FreeVerb fv = FreeVerb();
-    fv.setDamp(0.5);
+    fv.setDamp(0.20);
     fv.setWidth(0.5);
-    fv.setRoomSize(1.0);
-    fv.setMix(0.5);
+    fv.setRoomSize(0.75);
+    fv.setMix(0.75);
 
     /* single sample computation */
     /*
